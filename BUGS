@@ -1,0 +1,34 @@
+KNOWN BUGS
+==========
+
+Ogre 
+------------
+- Linux. Ogre uses private color map on Linux systems. If mouse is not 
+in the ogre window, colors will appear incorrectly. In the worst case, the
+ogre window may actually appear blank.
+
+- Transform gop does not work properly when viewing the scene with
+a built-in camera. However, it does works for model cameras.
+
+PRMan render package: shadow lights
+-----------------------------------
+Feature? Invalid args passed to shadow lights are ignored silently.
+
+
+Reading AL Types from String [10/96]
+------------------------------------
+The following code results in an error.
+
+	(define p (open-input-string "#<1 2 3>"))
+	(read p)
+
+Bug in math type reader or possibly in Elk. This bug occurs for
+all AL math types. This bug rears its head most often when someone 
+trys to send a message to ox using something like: 
+
+	> oxmsg "(print #<1 2>)"
+
+Other
+-----
+- Linux motif bug. Text widget will pass Null call data (i.e. event info) to
+  callback for ValueChanged event.

@@ -1,0 +1,212 @@
+README
+======
+
+This is the README file for the AL5 software distribution.
+
+This README file covers the following topics:
+  * What is AL? 
+  * Supported Platforms
+  * Software Requirements
+  * Installing AL On Your System
+  * Additional Installation Instructions
+  * Distribution Contents
+  * Trouble Shooting
+
+The "official" AL web site is:
+
+	http://www.cgrg.ohio-state.edu/~smay/AL
+
+
+WHAT IS AL?
+-----------
+
+AL (Animation Language) is a Scheme-based programming language for 
+modeling and animation. It was designed primarily for use with 
+RenderMan(R) renderers but can generate output for other renderers 
+as well. AL also includes a set of software tools which enable 
+you to write and use AL programs.
+
+AL was developed for research and educational purposes by me
+(Steve May, smay@cgrg.ohio-state.edu) at the Advanced Computing Center
+for the Arts and Design at The Ohio State University. This software
+is EXPERIMENTAL and is provided AS-IS with no warranties. You may do with 
+it as you like but do not distribute this from other ftp or web sites 
+please. Additionally, as experimental software, I reserve the right to 
+change AL in the future. I will make an effort however to provide 
+backwards compatibility when possible. Please send any 
+suggestions/comments/bug reports to me at smay@pixar.com.
+
+Source code is not currently distributed.
+
+Documentation for AL can be found at the "official" AL web site
+(above) or in the 'html' directory where AL is installed.
+
+
+SUPPORTED PLATFORMS
+-------------------
+
+The AL software is available for the following platforms:
+- SGI Irix5.3, mips1 (R3000 and earlier)
+- SGI Irix5.3, mips2 (R4000 and later)
+- SGI Irix6.x
+- HPUX 9.05
+- Linux ELF 
+
+The software may become available for other platforms in the
+future, but I will make absolutely no promises.
+
+
+SOFTWARE REQUIREMENTS
+---------------------
+- Perl*. AL is not based on Perl, but it does use Perl to run 
+  a couple of small scripts.
+  If you do not have Perl, it can be ftp'd from ftp.uu.net or 
+  archive.cis.ohio-state.edu among other places.
+- X11 libraries (optional) - for Xt/Motif plugin 
+- Motif** 1.2 or 2.0 libraries (optional) - for Xt/Motif plugin 
+- OpenGL** libs (optional) - for GL plugin
+- PhotoRealistic RenderMan (optional) - for use with prman plugin
+- BMRT (optional) - for use with bmrt plugin
+- On SGIs only, the Development Option is needed because the linker
+  (/usr/bin/ld) is required 
+
+ *On most platforms, perl is expected to be found in /bin. On Linux 
+  machines, it is expected in /usr/bin. If Perl is not installed
+  there, you will need to edit the first line of 'ox', 'ribinc', and
+  'blurfold' in $ALHOME/bin to to reflect where Perl is 
+  installed on your system.
+
+ **Motif and OpenGL libraries are not required for the Linux version.
+   These libraries are statically linked into the interpreter modules.
+
+INSTALLING AL ON YOUR SYSTEM
+----------------------------
+0. A note about "environment variables." A number of environment
+variables are mentioned below.  If you are using the "csh" UNIX shell,
+the values of these variables are set using the "setenv" command. Ex:
+
+	setenv VARNAME value
+
+To have these variables set automatically each time your start a
+shell, you should add the setenv commands to the ".cshrc" file located
+in your home area. (Note that a different procedure is used for other
+UNIX shells such as ksh.)
+
+1. Copy the distribution into the intended installation directory. 
+
+[If you are working with the source code distribution (NOT PUBLICLY
+AVAILABLE AT THIS TIME), see COMPILE for instructions on compiling 
+and installing the software.]
+
+2. The 'ALHOME' environment variable should be set to the directory
+where the software distribution is installed:
+
+	setenv ALHOME /usr/local/AL
+
+3. Add $ALHOME/bin to your PATH.
+
+4. On SGIs, Linux, add $ALHOME/lib to the 'LD_LIBRARY_PATH'
+path environment variable:
+
+        setenv LD_LIBRARY_PATH $ALHOME/lib
+
+   On HPs, add $ALHOME/lib to SHLIB_PATH:
+
+        setenv SHLIB_PATH $ALHOME/lib
+
+
+5. Add $ALHOME/lib/app-defaults/%N to the XUSERFILESEARCHPATH
+path environment variable.
+
+        setenv XUSERFILESEARCHPATH $ALHOME/lib/app-defaults/%N
+
+If everything gets installed, you should be able to run ox. You should
+see something like (varies depending on installation):
+
+	% ox
+	Welcome to OX, version 5.0 [6/30/98]
+	[BMRT][PhotoRealistic RenderMan]
+	ox -->
+
+To run the "standalone", non-windows version of AL which is smaller
+and does not require an X server, use the "-m lite" flag. (Interactive
+programs like "ogre" which require X will not run in this mode.)
+
+	% ox -m lite
+
+You may want to edit $ALHOME/etc/ox.ini to change the system-wide
+default parameters for the interpreter (ox). This includes the plugins 
+which are loaded and the default rendering packages. 
+See the AL web page for information on this configuration file.
+
+
+ADDITIONAL INSTALLATION INSTRUCTIONS
+------------------------------------
+1. If you are using the PhotoRealistic RenderMan plugin, the
+RMANTREE environment variable should be set to the prman installation
+directory so that shaders can be properly queried.
+
+2. If you are using the BMRT plugin, the SHADERS path environment
+variable should be set to the location of BMRT shaders so that shaders
+can be properly queried.
+
+3. If Perl is not installed in /bin (/usr/bin for Linux), you'll need
+to modify the first line of 'ox,' 'ribinc,' and 'blurfold' in the
+'$ALHOME/bin' directory.
+
+DISTRIBUTION CONTENTS
+---------------------
+
+./
+	README		This file.
+	COPYRIGHT	Copyright and permissions information.
+	BUGS		Bug information.
+	CHANGES		Version information.
+	COMPILE		Instructions for compiling source code distribution.
+
+bin/
+	ox		AL interpreter (actually Perl script which
+                        reads config files and starts appropriate executable).
+	oxmsg		Sends message (via X) to running ox interpreters.
+	blurfold	Utility Perl script called by Ox.
+	ribinc		Utility Perl script called by Ox.
+
+  [these programs are avail for SGIs only and will soon be obsolete]
+	aardvark	Spline editor.
+	cuesheet	Exposure sheet type editor.
+	dminfo		Utility to print info about clients and data.
+	hview		Hierarchy browser.
+	icam		Camera tool.
+
+contrib/al/		Supplemental and contributed sources.
+
+etc/	ox.ini		Default ox configuration file.
+
+html/			On-line documentation
+
+include/		C/C++ library headers
+
+lib/			Runtime resources and libraries
+lib/app-defaults/	X resource files for several tools
+lib/scheme/		Runtime Scheme code (Elk)
+lib/al/			Runtime AL code 
+
+
+TROUBLE SHOOTING
+----------------
+- If you get "ox: Command not found" and ox is in your PATH, it may be
+  that it's looking for Perl in the wrong place. Determine where Perl
+  is installed and use the full pathname in the first line of the 
+  ox, ribinc, and blurfold Perl scripts in the $ALHOME/bin directory.
+
+- If the system linker fails when dynamically loading modules into ox,
+  check these things:
+
+  + Make sure at least 1M of disk space is available in /tmp or set
+    TMPDIR to a directory with that much space for the linker files
+    (lda*).
+
+  + On SGIs, the current working directory must be writable by you. The 
+    linker writes a file called "so_locations" in the cwd.
+
+  + 'ox -v load' will print linker instructions and messages

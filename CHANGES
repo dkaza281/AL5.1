@@ -1,0 +1,101 @@
+VERSION INFORMATION
+===================
+* html docs haven't been updated
+
+version 5.0 - THIS VERSION IS CURRENTLY ALPHA
+
+	documentation is now located in ${ALHOME}/doc
+
+alpha [11/25/98]
+	linux chant bug - keying in value in cuesheet mode no longer causes
+		core dump
+	vector mode for bmrt now calls 'rgl -lines' (instead of rendribv)
+	help/docs are now retrieved from ${ALHOME}/html
+
+alpha [10/20/98]
+	AL web site (documentation) included with distribution!
+	PEGASYSHOME environment variable is replaced by ALHOME.
+*	al: avars have been replaced by afuncs
+		load-avar, save-avar obsolete. have been replaced
+		by load-xsheet, save-xsheet. syntax of model has changed.
+		syntax of xsheet file format has changed. v5 is backwards
+		compatible.
+*	NEW TOOL: timetool
+*	SHARED MEMORY IMPLEMENTATION REMOVED
+		icam, cuesheet, aardvark, hview no longer exist
+*	NEW TOOL: chant (replaces cuesheet, aardvark, hview)
+	added ri-read-archive (used to inclue RIB files inside a RIB file)
+*	new gops: display-gprims, render-gprims
+*	new gprims: points, curves (supports new PRMan primitives)
+*	ogre: support for points & curves gprims
+	prman: support for normal, vector, matrix, array shader params
+		in query-shader and auto shader declarations
+	query-shader now displays parameter type information
+	glw plugin (OpenGL widget): 
+		data passed to callbacks for input, expose, and
+		resize events has changed from the form (reason event-data)
+		to (reasons (event-data) width height).
+	utilities to compute polygon normals 
+		(points-polys-n points polys) -> face normals
+		(points-polys-avn points polys) -> average vertex normals
+
+version 4.3d [9/2/97]
+	prman plugin: now compatible with prman3.7 slo files [SGI vers only]
+
+version 4.3c [8/29/97]
+	prman plugin: fixed bug which causes ox to crash if it
+		can't find any rendermn.ini (e.g. when RMANTREE is undef'd)
+
+version 4.3b [4/30/97]
+	ogre: colors drawn are clamped value-wise to user-settable range.
+              this makes dark objects visible on black background.
+	ogre: motion scaled by distance from eye to coi. not perfect 
+              solution, but better
+	bugfix: ogre camera settings dialog properly updated when popped up
+	bugfix: vec3-mat3 multiply
+
+version 4.3a [1/28/97]
+	ogre: fixed bug with "view all" in orthographic cameras
+	ogre: improved html docs
+	ogre: help menu: added item to bring up HTML docs in netscape
+	increased interpreter hash table size and argument stack depth
+	increased error checking for write failures during rib generation
+	fixed bug where temp rib files for shadow maps were not removed 
+		during rendering of animation sequence
+	renderman render packages (prman, bmrt, rib) changed
+		generated rib file is no longer stored in "tmp.rib" --
+		it's now stored in unique unix tempname unless explicitly
+		set with 'ribfile parameter. If ribfile is explicitly set,
+		ribfile is not automatically removed. 'remove-ribfile
+		option has been removed.
+	surface-override option added to prman,bmrt,rib render packages.
+
+version 4.3 [1/23/97]
+
+	new ogre - the interface, hopefully, has been improved. some
+		functionality added
+		- ability to modify camera parameters using keyboard
+		  through camera settings dialog
+		- points-polygons prim can use smooth normals when
+		  provided 
+		- (ogre) returns object which user can send messages
+		  to control all major features available through 
+		  interface [e.g. (define x (ogre)) (send x 'view-all)]
+
+version 4.2c [12/19/96]
+
+	fixed bug in bmrt query-shader which could result in file 
+		not being properly closed
+	added support for many motif convenience routines
+		(XmCreate...) 
+
+version 4.2b [12/4/96] (summary of major changes from v3.3 [4/3/96]) 
+
+	new "ogre" plugin: replacement for icam tool 
+	automatic motion blur
+	more time efficient generation of RIB files
+	light camera gop
+	fixed bugs relating to DET plugin
+	numerous garbage collection bugs fixed
+	new OpenGL plugin: scheme interface to OpenGL (partially
+		implemented) 
