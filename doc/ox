@@ -1,1 +1,153 @@
+#!/usr/bin/perl
+
+if (!$ENV{"ALHOME"}) {
+    print("ALHOME environment variable not set.\n");
+    print("Set ALHOME to the name of the directory where AL is installed.\n"); 
+    print("For example: setenv ALHOME /usr/local/AL\n"); 
+    exit;
+}
+$pegasysdir = $ENV{"ALHOME"};
+$initfile = "ox.ini";
+@availmodes = ( lite, motif );
+
+sub usage {
+    print "usage: ox [options] [files...]\n";
+    print "options:\n";
+    print "  -m mode         interpreter mode (see list below)\n";
+    print "  -l toplevel     toplevel scheme file\n";
+    print "  -p loadpath     search path for scheme and object files\n";
+    print "  -h heapsize     initial heap size in kilobytes (default: 8000)\n";
+    print "  -i              case-insensitive scheme symbols \n";
+    print "  -v verbose      'init' or 'load' (for debugging)\n";
+    print "  -g              gc for ever allocated object (for debugging)\n";
+    print "  -s              print the issued shell command (for debugging)\n";
+
+    print "available interpreter modes:\n";
+    print "  ", join(' ', @availmodes), "\n";
+    exit 1;
+}
+
+sub parse_opts {
+    local($opt, $value);
+    local(%AR);
+    local(%OPTAB) = (
+		     '-l', 'toplevel',
+		     '-p', 'loadpath',
+		     '-h', 'heapsize',
+		     '-v', 'verbose',
+		     '-i', 'caseinsensitive',
+		     '-g', 'gcdebug',
+		     '-m', 'mode',
+		     '-s', 'showcommand',
+		     );
+    while ($ARGV[0] =~ /^-/) {
+
+	# -standalone flag is undocumented and retained for backwards compat
+	# it is equivalent to "-m lite" and may be removed in the future
+	
+	$opt = shift @ARGV;
+	$value = !($opt eq '-standalone' || $opt eq '-g' || $opt eq '-i' || $opt eq '-s') ? shift @ARGV : 'true';
+	if ($opt eq '-standalone') {
+	    $opt = '-m';
+	    $value = 'lite';
+	}
+	$opt = $OPTAB{$opt};
+	$AR{$opt} = $value if ($opt) || usage;
+    }
+
+    local($files);
+    foreach $file (@ARGV) {
+	$files .= $file . " ";
+    }
+    $AR{'files'} = $files;
+
+    %AR;
+}
+
+sub parse_config {
+    local(%AR);
+    local($filename) = @_;
+    open(CF, $filename);
+    while (<CF>) {
+	# ignore blank lines and lines beginning with '#'
+	if (!/^\s*#/ && /\S+/) { 
+	    ($name, $value) = split;
+	    # environment variable substitution
+	    $value =~ s/\${(\w+)}/$ENV{$1}/g;
+	    # remove slashes from variable names
+	    $name =~ s/\///g;
+	    $AR{$name} = $value;
+	}
+    }
+    close(CF);
+    return %AR;
+}
+
+sub merge_assoc {
+    local(@BOTH) = @_;
+    local(%NEW,$loadpath,$prevpath);
+    $prevpath = 0;
+    for ($i = 0; $i <= $#BOTH; $i += 2) {
+	if ($BOTH[$i] eq "loadpath") {
+	    $loadpath = $BOTH[$i + 1];
+	    $loadpath =~ s/&/$prevpath/g if $prevpath;
+	    $prevpath = $loadpath;
+	    $BOTH[$i + 1] = $loadpath;
+	}
+	$NEW{$BOTH[$i]} = $BOTH[$i + 1];
+    }
+    return %NEW;
+}
+
+# for debugging
+
+sub print_assoc {
+    local(%AR) = @_;
+    foreach $key (keys(%AR)) {
+	print "($key, $AR{$key})\n";
+    }
+}
+
+#
+# merge settings in order from: fallback settings, installed ox.ini,
+# ox.ini in users home area, ox.ini in cwd, and command-line args.
+#
+%SETTINGS = &merge_assoc(
+			 &parse_config($pegasysdir . "/etc/" . $initfile),
+			 &parse_config($ENV{'HOME'} . "/" . $initfile),
+			 &parse_config("./" . $initfile),
+			 &parse_opts);
+
+#
+# construct shell command to execute to start interpreter
+#
+if (!grep(/$SETTINGS{'mode'}/, @availmodes)) {
+    print "ox: error, invalid interpreter mode.\n";
+    print "    use one of: ", join(' ', @availmodes), "\n";
+    exit 1;
+}
+
+$schemecmd = "ox.$SETTINGS{'mode'} ";
+$schemecmd .= "-l $SETTINGS{'toplevel'} " if $SETTINGS{'toplevel'};
+$schemecmd .= "-p $SETTINGS{'loadpath'} " if $SETTINGS{'loadpath'};
+$schemecmd .= "-h $SETTINGS{'heapsize'} " if $SETTINGS{'heapsize'};
+$schemecmd .= "-i " if $SETTINGS{'caseinsensitive'} eq 'true';
+$schemecmd .= "-g " if $SETTINGS{'gcdebug'} eq 'true';
+$schemecmd .= "-v $SETTINGS{'verbose'} " if $SETTINGS{'verbose'} eq 'init' || $SETTINGS{'verbose'} eq 'load';
+$schemecmd .= "$pegasysdir ";
+$schemecmd .= "$SETTINGS{'mode'} ";
+$schemecmd .= "$SETTINGS{'userinitfile'} " if $SETTINGS{'userinitfile'};
+$schemecmd .= "$SETTINGS{'files'} " if $SETTINGS{'files'};
+
+#
+# execute shell cmd
+#
+
+if ($SETTINGS{'showcommand'} eq 'true') {
+    print $schemecmd, "\n";
+}
+
+exec $schemecmd; # if all goes well, this shouldn't return
+
+die "ox: ERROR, unable to exec interpreter (command shown below)\n  $schemecmd\n";
 
